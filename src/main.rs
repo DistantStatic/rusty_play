@@ -1,5 +1,22 @@
 use std::io;
 
+struct GameBoard {
+    corners: [Point; 4],
+}
+
+impl GameBoard {
+    fn new() -> GameBoard {
+        GameBoard {
+            corners: [
+                Point::from(0, 0),
+                Point::from(0, 100),
+                Point::from(100, 100),
+                Point::from(100, 0),
+            ]
+        }
+    }
+}
+
 struct Point {
     x: i32,
     y: i32,
@@ -115,5 +132,6 @@ fn main() {
             Message::ChangeColor(r, b, g) => println!("new color r:{}, b:{}, g:{}", r, b, g),
         }
     }
+    println!("Goodbye");
 
 }
