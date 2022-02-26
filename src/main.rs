@@ -15,6 +15,18 @@ impl GameBoard {
             ]
         }
     }
+    fn validate_move(self: &Self, coord: Point) -> bool {
+        for point in &self.corners {
+            if coord.x > point.x || coord.y > point.y {
+                return false;
+            }
+        }
+        return true;
+    }
+    fn check_bounds(self: &Self, point: Point) {
+
+    }
+
 }
 
 struct Point {
@@ -62,7 +74,7 @@ impl Player {
 
 enum Message {
     Quit(),
-    Move{x: i32, y: i32},
+    Move{point: Point},
     Write(String),
     ChangeColor(u32,  u32 ,u32)
 }
@@ -76,7 +88,8 @@ fn get_move() -> Message {
     println!("Enter Y:");
     io::stdin().read_line(&mut input).expect("Unable to read line");
     let input_y: i32 = input.trim().parse().expect("Unable to parse to i32");
-    Message::Move{x: input_x, y: input_y}
+
+    Message::Move{point: Point{ x: input_x, y: input_y}}
 }
 
 fn get_write() -> Message {
@@ -127,7 +140,7 @@ fn main() {
     loop {
         match get_input() {
             Message::Quit() => break,
-            Message::Move{x, y} => my_player.position = Point::from(x, y),
+            Message::Move{point} => my_player.position = Point::from(point.x, point.y),
             Message::Write(message) => println!("Written Message ...\n{}", message),
             Message::ChangeColor(r, b, g) => println!("new color r:{}, b:{}, g:{}", r, b, g),
         }
