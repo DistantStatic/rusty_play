@@ -16,6 +16,9 @@ impl GameBoard {
         }
     }
     fn validate_move(self: &Self, coord: Point) -> bool {
+        self.check_bounds(coord)
+    }
+    fn check_bounds(self: &Self, coord: Point) -> bool {
         for point in &self.corners {
             if coord.x > point.x || coord.y > point.y {
                 return false;
@@ -23,10 +26,6 @@ impl GameBoard {
         }
         return true;
     }
-    fn check_bounds(self: &Self, point: Point) {
-
-    }
-
 }
 
 struct Point {
@@ -79,17 +78,26 @@ enum Message {
     ChangeColor(u32,  u32 ,u32)
 }
 
-fn get_move() -> Message {
-    println!("Enter X:");
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Unable to read line");
-    let input_x: i32 = input.trim().parse().expect("Unable to parse to i32");
-    input.clear();
-    println!("Enter Y:");
-    io::stdin().read_line(&mut input).expect("Unable to read line");
-    let input_y: i32 = input.trim().parse().expect("Unable to parse to i32");
+fn get_move(player: &Player) -> Message {
+    let mut wasd = String::new();
 
-    Message::Move{point: Point{ x: input_x, y: input_y}}
+    let mut input_x: i32 = player.position.x;
+    let mut input_y: i32 = player.position.y;
+    loop {
+        println!("Where would you like to go?\n  w\na s d\n");
+        io::stdin().read_line(&mut wasd).expect("Unable to read line");
+
+        println!("Received: {}", wasd.trim());
+        match wasd.trim() {
+            "w" => {input_y += 1; break},
+            "a" => {input_x -= 1; break},
+            "s" => {input_y -= 1; break},
+            "d" => {input_x += 1; break},
+            _ => {wasd.clear(); continue},
+        }
+    }
+    
+     Message::Move{point: Point{ x: input_x, y: input_y}}
 }
 
 fn get_write() -> Message {
@@ -119,7 +127,8 @@ fn get_color() -> Message {
     Message::ChangeColor(r_val, b_val, g_val)
 }
 
-fn get_input() -> Message {
+fn get_input(player: &Player) -> Message {
+    player.display_details();
     println!("What would you like to do?\n");
     println!("1: Quit\n2: Move\n3: Write\n4: Change Color\n");
     let mut input = String::new();
@@ -127,10 +136,10 @@ fn get_input() -> Message {
     let choice = input.trim().parse().expect("Unable to parse to number");
     match choice {
         1 => Message::Quit(),
-        2 => get_move(),
+        2 => get_move(player),
         3 => get_write(),
         4 => get_color(),
-        _ => get_input()
+        _ => get_input(player)
     }
 }
 
@@ -138,7 +147,7 @@ fn main() {
     let mut my_player = Player::new();
 
     loop {
-        match get_input() {
+        match get_input(&my_player) {
             Message::Quit() => break,
             Message::Move{point} => my_player.position = Point::from(point.x, point.y),
             Message::Write(message) => println!("Written Message ...\n{}", message),
